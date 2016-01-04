@@ -48,6 +48,10 @@ class BirthEvent(Event):
             world.log("Lame... {} would have been born, but the universe was due to end", self.person)
             return
         world.people.add(self.person)
+        if self.person.gender == self.person.FEMALE:
+            world.women.add(self.person)
+        else:
+            world.men.add(self.person)
         world.schedule(
             DeathEvent(
                 death_timestamp,
@@ -90,14 +94,15 @@ class FertilityEvent(Event):
 
     def __call__(self, world):
         if not self.person.alive:
-            world.log("Wah waah... {} would have gotten pregnant, but passed away before her time.".format(self.person))
+            # world.log("Wah waah... {} would have gotten pregnant, but passed away before her time.".format(self.person))
             return
         if self.person.pregnant:
-            world.log("Look at dem genes... {} would have gotten pregnant again, but already is!".format(self.person))
+            # world.log("Look at dem genes... {} would have gotten pregnant again, but already is!".format(self.person))
             return
-        fathers = list(filter(lambda p: p.gender == p.MALE, world.people))
+        # fathers = list(filter(lambda p: p.gender == p.MALE, world.people))
+        fathers = list(world.men)
         if not fathers:
-            world.log("{} was looking for a man, but there were none to be found", self.person)
+            # world.log("{} was looking for a man, but there were none to be found", self.person)
             return
         father_index = prng.random_integers(0, len(fathers)-1)
         father = fathers[father_index]
@@ -118,6 +123,14 @@ class DeathEvent(Event):
         if not self.person in world.people:
             return
         world.people.remove(self.person)
+        try:
+            world.men.remove(self.person)
+        except KeyError:
+            pass
+        try:
+            world.women.remove(self.person)
+        except KeyError:
+            pass
         self.person.alive = False
         world.log(
             "{} has died at the age of {}",

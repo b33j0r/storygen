@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 import heapq
 import itertools
 
-from storygen.events.event import PlagueEvent
+from storygen.events.event import PlagueEvent, BirthEvent
 from storygen.events.timestamp import Time, TimeDelta
 from storygen.names.name import Name
 
@@ -28,6 +28,8 @@ class World:
         self.clock = Time(5000, 1, 1)
         self.events = []
         self.people = set()
+        self.men = set()
+        self.women = set()
 
     def schedule(self, e):
         if e.timestamp < self.clock:
@@ -64,13 +66,12 @@ class World:
 
 
 def main():
-    initial_population = 50
+    initial_population = 10
 
     from storygen.names.phoneme import load_phonemes
     from storygen.languages.language import LanguageGenerator
     from storygen.culture.culture import Culture
     from storygen.people.person import Person
-    from storygen.events.event import BirthEvent
 
     language_gen = LanguageGenerator(load_phonemes())
     language = language_gen()
@@ -82,17 +83,14 @@ def main():
 
     for i, name in enumerate(names):
         birthdate = world.clock
-        person = Person(name, Person.MALE if i % 2 else Person.FEMALE, birthdate, culture)
+        person = Person(name, Person.MALE if (i % 2) else Person.FEMALE, birthdate, culture)
         birth = BirthEvent(person)
         world.schedule(birth)
 
-    world.schedule(PlagueEvent(world.clock + TimeDelta(days=100000)))
+    # world.schedule(PlagueEvent(world.clock + TimeDelta(days=100000)))
 
     for _ in world.step_all():
         pass
-
-    # for _ in world.steps(10):
-    #     pass
 
     world.log("History has ended after {} years", world.clock.year-5000)
 
