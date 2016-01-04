@@ -1,17 +1,19 @@
 #! /usr/bin/env python
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 
-import pickle
 import math
 from bisect import bisect
+from collections import OrderedDict
 
 import numpy as np
 import matplotlib.mlab as mlab
 
-from storygen.utility.shared import project_path
+from storygen.names.phoneme import ALPHA, OMEGA
 
 
 prng = np.random.RandomState()
+# import pickle
+# from storygen.utility.shared import project_path
 # try:
 #     with open(project_path('prng.dat'), 'rb') as f:
 #         prng_state = pickle.load(f)
@@ -60,6 +62,39 @@ class DistributionFunction:
         return y
 
 
+class MarkovChain(object):
+
+    def __init__(self, state_mapping, start=ALPHA, end=OMEGA):
+        self.state_mapping = state_mapping
+        self.start = start
+        self.end = end
+
+    def __call__(self):
+        result = [self.start]
+        while result[-1] is not self.end:
+            choices, cdf = self.state_mapping[result[-1]]
+            x = prng.random_sample()
+            i = bisect(cdf, x)
+            result.append(choices[i])
+        return result[1:-1]
+
+    def keys(self):
+        return self.state_mapping.keys()
+
+    @classmethod
+    def from_weights(cls, weights):
+        d = OrderedDict()
+        for k, choice_dct in weights.items():
+            keys, weights = zip(*choice_dct.items())
+            total = float(sum(weights))
+            probs = [v/total for v in weights]
+            cdf = [probs[0]]
+            for i in range(1, len(probs)):
+                cdf.append(cdf[-1] + probs[i])
+            d[k] = keys, cdf
+        return cls(d)
+
+
 def main():
     df = DistributionFunction()
     df.plot()
@@ -67,13 +102,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-def weighted_dict_to_cummulative_distribution(choice_dct):
-    keys, weights = zip(*choice_dct.items())
-    total = float(sum(weights))
-    probs = [v/total for v in weights]
-    cdf = [probs[0]]
-    for i in range(1, len(probs)):
-        cdf.append(cdf[-1] + probs[i])
-    return keys, cdf

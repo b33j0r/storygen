@@ -1,8 +1,7 @@
 #! /usr/bin/env python
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 
-from storygen.names.phoneme import ALPHA, OMEGA
-from storygen.utility.probability import prng
+from storygen.utility.probability import MarkovChain
 
 
 class Word:
@@ -33,18 +32,11 @@ class Word:
 
 class WordGenerator:
 
-    def __init__(self):
-        pass
+    def __init__(self, validator=None):
+        self.validator = validator
 
     def __call__(self, language):
-        from bisect import bisect
-        w = [ALPHA]
-        while w[-1] is not OMEGA:
-            choices, cdf = language.phoneme_cdf[w[-1]]
-            x = prng.random_sample()
-            i = bisect(cdf, x)
-            w.append(choices[i])
-        phonemes = w[1:-1]
+        phonemes = language.markov_chain()
         return Word(phonemes)
 
 
@@ -59,14 +51,16 @@ class WordValidator:
         self.allow_repetition = allow_repetition
 
     def partial_validation(self, word):
-        w = str(word)
-        if len(w) > self.max_length:
+        if len(word) > self.max_length:
             return False
+        return True
 
     def __call__(self, word):
-        w = str(word)
-        if len(w) < self.min_length:
+        if not self.partial_validation(word):
             return False
+        if len(word) < self.min_length:
+            return False
+        w = str(word)
         if self.max_vowels_re.search(w):
             return False
         if self.max_consonants_re.search(w):

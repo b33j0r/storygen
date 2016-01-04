@@ -6,8 +6,7 @@ from collections import OrderedDict
 
 from storygen.languages.word import WordValidator, WordGenerator
 from storygen.names.phoneme import ALPHA, OMEGA
-from storygen.utility.probability import DistributionFunction, weighted_dict_to_cummulative_distribution
-
+from storygen.utility.probability import DistributionFunction, MarkovChain
 
 __all__ = ['Language', 'LanguageGenerator']
 
@@ -19,14 +18,11 @@ class Language:
     """
     Consists of a set of phonemes, and a probabilistic model of how they occur.
     """
-    def __init__(self, phoneme_weights, **kwargs):
+
+    def __init__(self, markov_chain, **kwargs):
         self.word_generator = kwargs.get('word_generator') or WordGenerator()
-        self.phonemes = set(k for k in phoneme_weights.keys() if k is not ALPHA)
-        self.phoneme_weights = phoneme_weights
-        self.phoneme_cdf = {
-            p: weighted_dict_to_cummulative_distribution(phoneme_weights[p])
-            for p in phoneme_weights.keys()
-        }
+        self.phonemes = set(k for k in markov_chain.keys() if k is not ALPHA)
+        self.markov_chain = markov_chain
 
     def word(self, validator=None, max_tries=1000):
         for n in range(max_tries):
@@ -68,7 +64,9 @@ class LanguageGenerator:
                     if p2 is OMEGA:
                         phoneme_weights[p][p2] += 0.1
 
-        return Language(phoneme_weights)
+        markov_chain = MarkovChain.from_weights(phoneme_weights)
+
+        return Language(markov_chain)
 
 
 def main():
