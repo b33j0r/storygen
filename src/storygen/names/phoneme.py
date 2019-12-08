@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-from __future__ import (absolute_import, division, print_function, unicode_literals)
+from storygen.utility.paths import FilePaths
 
 
 class Phoneme:
@@ -26,11 +26,9 @@ ALPHA = Phoneme('^')
 OMEGA = Phoneme('$')
 
 
-def load_phonemes():
-    import codecs
-    from storygen.utility.shared import project_path
-    with codecs.open(project_path("data", "phonemes.txt"), 'r', 'utf-8') as f:
-        return [Phoneme(l.strip()) for l in f if l.strip()]
+def load_phonemes(name="phonemes.txt"):
+    with (FilePaths.data_dir / name).open() as f:
+        return [Phoneme(line.strip()) for line in f if line.strip()]
 
 
 def main():

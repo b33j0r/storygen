@@ -1,17 +1,24 @@
 #! /usr/bin/env python
-from __future__ import (absolute_import, division, print_function, unicode_literals)
-
 import math
+import zlib
 from bisect import bisect
 from collections import OrderedDict
+from typing import Union
 
 import numpy as np
 import scipy.stats
+from numpy.random.mtrand import RandomState
 
 from storygen.names.phoneme import ALPHA, OMEGA
 
 
-prng = np.random.RandomState()
+def get_prng(seed: Union[str, int, None] = None) -> RandomState:
+    if isinstance(seed, str):
+        seed = zlib.adler32(seed.encode())
+    return RandomState(seed)
+
+
+prng = get_prng()
 
 
 def spike(x, offset, variance):
@@ -50,7 +57,7 @@ class DistributionFunction:
         return y
 
 
-class MarkovChain(object):
+class MarkovChain:
 
     def __init__(self, state_mapping, start=ALPHA, end=OMEGA):
         self.state_mapping = state_mapping

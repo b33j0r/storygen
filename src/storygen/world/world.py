@@ -1,6 +1,4 @@
 #! /usr/bin/env python
-from __future__ import (absolute_import, division, print_function, unicode_literals)
-
 import heapq
 import itertools
 
@@ -66,7 +64,7 @@ class World:
 
 
 def main():
-    initial_population = 10
+    initial_population = 100
 
     from storygen.names.phoneme import load_phonemes
     from storygen.languages.language import LanguageGenerator
