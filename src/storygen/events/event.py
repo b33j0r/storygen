@@ -39,9 +39,8 @@ class BirthEvent(Event):
         self.person = person
 
     def __call__(self, world):
-        lifespan = prng.random_integers(20, 80)*365
-        lifespan = TimeDelta(days=lifespan)
-        lifespan = TimeDelta(days=lifespan.days)
+        lifespan = prng.random_integers(20, 80) * 365
+        lifespan = TimeDelta(days=int(lifespan))
         try:
             death_timestamp = self.timestamp + lifespan
         except OverflowError:
@@ -60,9 +59,11 @@ class BirthEvent(Event):
         )
         if self.person.gender == self.person.FEMALE:
             for i in range(prng.random_integers(1, 6)):
+                fertility_dt = prng.random_integers(15, 45) * 365
+                fertility_dt = TimeDelta(days=int(fertility_dt))
                 world.schedule(
                     FertilityEvent(
-                        world.clock + TimeDelta(days=prng.random_integers(15, 45)*365),
+                        world.clock + fertility_dt,
                         self.person
                     )
                 )
@@ -120,7 +121,7 @@ class DeathEvent(Event):
         self.person = person
 
     def __call__(self, world):
-        if not self.person in world.people:
+        if self.person not in world.people:
             return
         world.people.remove(self.person)
         try:
@@ -147,6 +148,7 @@ class PlagueEvent(Event):
 
     def __init__(self, timestamp, mortality_rate=0.5, communication_factor=1):
         super(PlagueEvent, self).__init__(timestamp)
+        # TODO: what was the intention here?
         self.mortality_rate = communication_factor
 
     def __call__(self, world):
@@ -156,11 +158,3 @@ class PlagueEvent(Event):
                 DeathEvent(world.clock + TimeDelta(days=1), person)
             )
         world.log("PLAGUE has struck!")
-
-
-def main():
-    pass
-
-
-if __name__ == "__main__":
-    pass

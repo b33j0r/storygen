@@ -6,28 +6,16 @@ from bisect import bisect
 from collections import OrderedDict
 
 import numpy as np
-import matplotlib.mlab as mlab
+import scipy.stats
 
 from storygen.names.phoneme import ALPHA, OMEGA
 
 
 prng = np.random.RandomState()
-# import pickle
-# from storygen.utility.shared import project_path
-# try:
-#     with open(project_path('prng.dat'), 'rb') as f:
-#         prng_state = pickle.load(f)
-#     prng.set_state(prng_state)
-#     print("Loaded saved PRNG")
-# except IOError:
-#     prng_state = prng.get_state()
-#     with open(project_path('prng.dat'), 'wb') as f:
-#         pickle.dump(prng_state, f)
-#     print("Saved new PRNG")
 
 
 def spike(x, offset, variance):
-    y = mlab.normpdf(x, offset, math.sqrt(variance))
+    y = scipy.stats.norm.pdf(x, offset, math.sqrt(variance))
     y = y - min(y)
     y = y/max(x)
     return y

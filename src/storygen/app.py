@@ -3,8 +3,6 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 
 import random
 from bisect import bisect
-from collections import OrderedDict
-from pprint import pprint
 
 
 class PhonemePosition:
@@ -95,9 +93,9 @@ def main():
     last_name_language = gen_language(phonemes)
     # pprint(first_name_language)
 
-    first_names = gen_names(first_name_language, n=100, min_length=4)
+    first_names = gen_names(first_name_language, n=1000, min_length=4)
     # first_names = sorted(first_names)
-    last_names = list(gen_names(last_name_language, n=20, min_length=4))*5
+    last_names = list(gen_names(last_name_language, n=200, min_length=4))*5
     last_names = sorted(last_names)
     for first_name, last_name in zip(first_names, last_names):
         print("{} {}".format(first_name.title(), last_name.title()))
