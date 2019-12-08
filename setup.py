@@ -11,7 +11,7 @@ setup(
     author='Brian Jorgensen',
     author_email='brian.jorgensen@gmail.com',
     description='',
-    install_requires=['numpy'],
+    install_requires=['numpy', 'scipy'],
     entry_points={
         'console_scripts': []
     },
