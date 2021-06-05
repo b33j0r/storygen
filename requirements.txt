@@ -1,5 +1,1 @@
-cython
-matplotlib
-numpy
-pandas
-scipy
+colorlog
