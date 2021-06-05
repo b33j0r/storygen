@@ -57,6 +57,16 @@ class DistributionFunction:
         return y
 
 
+def weighted_dict_to_cummulative_distribution(choice_dct):
+    keys, weights = zip(*choice_dct.items())
+    total = float(sum(weights))
+    probs = [v/total for v in weights]
+    cdf = [probs[0]]
+    for i in range(1, len(probs)):
+        cdf.append(cdf[-1] + probs[i])
+    return keys, cdf
+
+
 class MarkovChain:
 
     def __init__(self, state_mapping, start=ALPHA, end=OMEGA):
@@ -80,12 +90,7 @@ class MarkovChain:
     def from_weights(cls, weights):
         d = OrderedDict()
         for k, choice_dct in weights.items():
-            keys, weights = zip(*choice_dct.items())
-            total = float(sum(weights))
-            probs = [v/total for v in weights]
-            cdf = [probs[0]]
-            for i in range(1, len(probs)):
-                cdf.append(cdf[-1] + probs[i])
+            keys, cdf = weighted_dict_to_cummulative_distribution(choice_dct)
             d[k] = keys, cdf
         return cls(d)
 
